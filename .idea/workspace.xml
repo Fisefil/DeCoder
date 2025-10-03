@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="324a0251-9669-481a-8930-e4460daf8fd4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/ReCoder.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="324a0251-9669-481a-8930-e4460daf8fd4" name="Changes" comment="First try">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +56,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\school\ReCoder\ReCoder\DeCoder" />
       <recent name="D:\school\ReCoder\ReCoder\.venv\tools" />
       <recent name="D:\school\ReCoder\ReCoder" />
       <recent name="D:\school\ReCoder\ReCoder\.venv\handlers" />
@@ -83,7 +78,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/.venv/main.py" />
+      <option name="SCRIPT_NAME" value="D:\school\ReCoder\ReCoder\DeCoder\main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -140,6 +135,15 @@
       <option name="presentableId" value="Default" />
       <updated>1758748475715</updated>
     </task>
+    <task id="LOCAL-00001" summary="First try">
+      <option name="closed" value="true" />
+      <created>1759529850468</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1759529850468</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -153,24 +157,6 @@
         <entry key="7243aa72-62f3-494e-9502-63aa979d25e5">
           <value>
             <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="HEAD" />
-                      </list>
-                    </value>
-                  </entry>
-                  <entry key="structure">
-                    <value>
-                      <list>
-                        <option value="dir:D:/school/ReCoder/ReCoder/.venv" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
               <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
             </State>
           </value>
@@ -182,5 +168,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="First try" />
+    <option name="LAST_COMMIT_MESSAGE" value="First try" />
   </component>
 </project>
