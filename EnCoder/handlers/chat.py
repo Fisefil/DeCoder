@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import ContextTypes
 from html import escape
 import logging
@@ -15,17 +15,19 @@ GROUP_ID = -1003169335486
 MAX_REPLY_LEN = 50
 
 
-def build_nested_reply(raw_reply: str, reply_name: str|None = None, reply_code: str|None = None, max_len: int = MAX_REPLY_LEN) -> str:
+def build_nested_reply(raw_reply: str, reply_name: str | None = None, reply_code: str | None = None,
+                       max_len: int = MAX_REPLY_LEN) -> str:
     if not raw_reply:
         return ""
-    matches = list(re.finditer(r'\[[^\[\]]+#\d{5}\]', raw_reply))
+    matches = list(re.finditer(r'\[[^\[\]]+#\d{5}]', raw_reply))
     snippet = raw_reply[matches[-3].start():] if len(matches) >= 3 else raw_reply
-    last_match = re.search(r'\[.*?#\d{5}\]', snippet)
+    last_match = re.search(r'\[.*?#\d{5}]', snippet)
     if last_match:
         snippet = snippet[last_match.start():last_match.start() + max_len]
-    if reply_name != None:
+    if reply_name is not None:
         return f"[{reply_name}#{reply_code}]\n{snippet}"
-    else: return snippet
+    else:
+        return snippet
 
 
 def can_have_caption(message) -> bool:
@@ -40,9 +42,11 @@ async def send_anything(context, chat_id, message, caption):
         elif message.video:
             await context.bot.send_video(chat_id, video=message.video.file_id, caption=caption, parse_mode="HTML")
         elif message.animation:
-            await context.bot.send_animation(chat_id, animation=message.animation.file_id, caption=caption, parse_mode="HTML")
+            await context.bot.send_animation(chat_id, animation=message.animation.file_id, caption=caption,
+                                             parse_mode="HTML")
         elif message.document:
-            await context.bot.send_document(chat_id, document=message.document.file_id, caption=caption, parse_mode="HTML")
+            await context.bot.send_document(chat_id, document=message.document.file_id, caption=caption,
+                                            parse_mode="HTML")
         elif message.audio:
             await context.bot.send_audio(chat_id, audio=message.audio.file_id, caption=caption, parse_mode="HTML")
         elif message.voice:
@@ -139,7 +143,11 @@ async def direct_message_handler(update: Update, context: ContextTypes.DEFAULT_T
 
     for uid in user_ids:
         try:
-            await context.bot.send_message(chat_id=int(uid), text=f"Вам прямое сообщение от [{escape(name)}#<i>{escape(code)}</i>]", parse_mode="HTML")
+            await context.bot.send_message(
+                chat_id=int(uid),
+                text=f"Вам прямое сообщение от [{escape(name)}#<i>{escape(code)}</i>]",
+                parse_mode="HTML"
+            )
             await send_anything(context, uid, msg, final_text)
             sent_to.append(users_data[uid].get("name", uid))
         except Exception as e:

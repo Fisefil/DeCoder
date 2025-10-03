@@ -1,7 +1,11 @@
+import datetime
+import re
+
 from telegram import Update, ChatPermissions
 from telegram.ext import ContextTypes
+
 from tools.storage import users_data, get_user_ids_by_codes, save_data
-import datetime, logging, re
+
 
 def parse_duration(arg: str) -> datetime.datetime | None:
     if not arg:
@@ -17,7 +21,7 @@ def parse_duration(arg: str) -> datetime.datetime | None:
             delta = datetime.timedelta(days=amount)
         else:
             return None
-        return datetime.datetime.utcnow() + delta
+        return datetime.datetime.now() + delta
     except Exception:
         return None
 

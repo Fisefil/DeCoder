@@ -41,7 +41,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "run_chat":
         if users_data.get(query.from_user.id, {}).get("is_banned"):
-            await query.edit_message_text("Вы заблокированы, вам чат не доступен.", reply_markup=main_menu_markup(context))
+            await query.edit_message_text("Вы заблокированы, вам чат не доступен.",
+                                          reply_markup=main_menu_markup(context))
         else:
             users_data[str(query.from_user.id)]["chat_mode"] = True
             context.user_data["chat_mode"] = True
@@ -53,10 +54,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("Чат остановлен.", reply_markup=main_menu_markup(context))
 
     elif query.data == "settings":
-        await profile_settings(update, context)
+        await profile_settings(update)
 
     elif query.data == "get_name":
-        await get_name(update, context)
+        await get_name(update)
 
     elif query.data == "back":
         await query.edit_message_text("Главное меню:", reply_markup=main_menu_markup(context))

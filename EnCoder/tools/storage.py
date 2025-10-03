@@ -43,4 +43,5 @@ def assign_codes(users: dict):
 def get_user_ids_by_codes(codes: List[str]) -> List[str]:
     return [uid for uid, udata in users_data.items() if udata.get("code") in codes]
 
+
 users_data = load_data()

@@ -1,17 +1,18 @@
 import os
+import re
+
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (
     ApplicationBuilder, CommandHandler,
     CallbackQueryHandler, ConversationHandler,
     MessageHandler, filters, ContextTypes
 )
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-import re
 
+from handlers.chat import chat_ressender, direct_message_handler
 from handlers.menu import send_main_menu, button_handler, WAITING_FOR_NAME, main_menu_markup
 from handlers.profile import receive_name
-from handlers.chat import chat_ressender, direct_message_handler
-from tools.storage import save_data, users_data, assign_codes
 from tools.moderation import ban, unban, mute, unmute
+from tools.storage import save_data, users_data, assign_codes
 
 # --- Новое состояние для команды /direct ---
 WAITING_DIRECT_MESSAGE = 1001
@@ -45,10 +46,12 @@ async def global_message_handler(update: Update, context: ContextTypes.DEFAULT_T
     elif update.effective_chat.type in ("group", "supergroup"):
         await chat_ressender(update, context)
     elif users_data.get(user_id, {}).get("is_banned"):
-        await update.message.reply_text("Вы были заблокированы администратором, пока нет функции аппеляции вам предлагается поплакать.")
+        await update.message.reply_text("Вы были заблокированы администратором, "
+                                        "пока нет функции аппеляции вам предлагается поплакать.")
         return
     elif users_data.get(user_id, {}).get("is_muted"):
-        await update.message.reply_text("Вы были заткнуты администратором, пока нет функции аппеляции вам предлагается поплакать.")
+        await update.message.reply_text("Вы были заткнуты администратором, "
+                                        "пока нет функции аппеляции вам предлагается поплакать.")
         return
     elif context.user_data.get("chat_mode"):
         await chat_ressender(update, context)
@@ -75,10 +78,10 @@ async def hidden(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat.type == "private":
         return
     hidden_mode = context.user_data.get("hidden_mode", False)
-    if context.user_data.get("hidden_mode"):
+    if hidden_mode:
         context.user_data["hidden_mode"] = False
         await update.message.reply_text("Ваши сообщения теперь видны в боте.")
-    elif context.user_data.get("hidden_mode") == False:
+    elif not hidden_mode:
         context.user_data["hidden_mode"] = True
         await update.message.reply_text("Ваши сообщения теперь скрыты от бота.")
 
