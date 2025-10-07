@@ -4,7 +4,7 @@ from html import escape
 import logging
 import re
 
-from tools.storage import users_data, get_user_ids_by_codes
+from tools.storage import get_user, get_user_ids_by_codes, get_conn
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -61,6 +61,8 @@ async def send_anything(context, chat_id, message, caption):
 
 
 async def chat_ressender(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    conn = get_conn()
+    cur = conn.cursor(dictionary=True)
     msg = update.message
     supported = any([msg.text, msg.photo, msg.video, msg.animation, msg.document, msg.audio, msg.voice, msg.sticker])
     if not supported:
@@ -71,14 +73,14 @@ async def chat_ressender(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(msg.from_user.id)
     chat_id = msg.chat.id
 
-    user = users_data.get(user_id, {})
+    user = get_user(user_id)
     code = user.get("code", "?????")
     name = user.get("name", "Неизвестный")
 
     if msg.reply_to_message:
         raw_reply = msg.reply_to_message.text or msg.reply_to_message.caption or ""
         reply_user_id = str(msg.reply_to_message.from_user.id)
-        reply_user = users_data.get(reply_user_id, {})
+        reply_user = get_user(reply_user_id)
         reply_name = reply_user.get("name", None)
         reply_code = reply_user.get("code", None)
         nested_reply = build_nested_reply(raw_reply, reply_name, reply_code, MAX_REPLY_LEN)
@@ -92,10 +94,10 @@ async def chat_ressender(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open("chat.log", "a", encoding="utf-8") as f:
         f.write(f"\n{final_text}\n")
 
-    for uid, udata in users_data.items():
+    cur.execute("SELECT user_id FROM users WHERE chat_mode = TRUE")
+    for row in cur.fetchall():
+        uid = str(row["user_id"])
         if str(uid) == user_id and chat_id != GROUP_ID:
-            continue
-        if not udata.get("chat_mode", False):
             continue
         try:
             await send_anything(context, uid, msg, final_text)
@@ -125,7 +127,7 @@ async def direct_message_handler(update: Update, context: ContextTypes.DEFAULT_T
     codes = context.user_data.get("direct_codes", [])
 
     user_id = str(msg.from_user.id)
-    user = users_data.get(user_id, {})
+    user = get_user(user_id)
     code = user.get("code", "?????")
     name = user.get("name", "Неизвестный")
 
@@ -149,7 +151,8 @@ async def direct_message_handler(update: Update, context: ContextTypes.DEFAULT_T
                 parse_mode="HTML"
             )
             await send_anything(context, uid, msg, final_text)
-            sent_to.append(users_data[uid].get("name", uid))
+            recipient = get_user(str(uid))
+            sent_to.append(recipient.get("name", str(uid)))
         except Exception as e:
             await msg.reply_text(f"Не удалось отправить {uid}: {e}")
 

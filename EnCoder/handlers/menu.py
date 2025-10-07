@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 from handlers.profile import profile_settings, get_name
 from handlers.chat import GROUP_ID
-from tools.storage import users_data
+from tools.storage import get_user, upsert_user
 
 WAITING_FOR_NAME = 1
 
@@ -39,17 +39,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    user_id = str(query.from_user.id)
+    user = get_user(user_id)
+
     if query.data == "run_chat":
-        if users_data.get(query.from_user.id, {}).get("is_banned"):
+        if user.get("is_banned"):
             await query.edit_message_text("Вы заблокированы, вам чат не доступен.",
                                           reply_markup=main_menu_markup(context))
         else:
-            users_data[str(query.from_user.id)]["chat_mode"] = True
+            upsert_user(user_id, chat_mode=True)
             context.user_data["chat_mode"] = True
             await query.edit_message_text("Чат запущен.", reply_markup=main_menu_markup(context))
 
     elif query.data == "stop_chat":
-        users_data[str(query.from_user.id)]["chat_mode"] = False
+        upsert_user(user_id, chat_mode=False)
         context.user_data["chat_mode"] = False
         await query.edit_message_text("Чат остановлен.", reply_markup=main_menu_markup(context))
 

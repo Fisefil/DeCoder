@@ -4,7 +4,7 @@ import re
 from telegram import Update, ChatPermissions
 from telegram.ext import ContextTypes
 
-from tools.storage import users_data, get_user_ids_by_codes, save_data
+from tools.storage import get_user, get_user_ids_by_codes, upsert_user
 
 
 def parse_duration(arg: str) -> datetime.datetime | None:
@@ -26,8 +26,8 @@ def parse_duration(arg: str) -> datetime.datetime | None:
         return None
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user = users_data.get(str(user_id), {})
+    user_id = str(update.message.from_user.id)
+    user = get_user(user_id)
 
     args = context.args or []
     target_id = None
@@ -66,7 +66,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Пожалуйста, не пытайтесь заблокировать себя...")
         return
 
-    target_data = users_data.get(str(target_id), {})
+    target_data = get_user(target_id)
     if target_data.get("is_banned"):
         await update.message.reply_text("Пользователь уже заблокирован!")
         return
@@ -82,9 +82,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             reason = " ".join(args)
 
-    target_data["is_banned"] = True
-    users_data[str(target_id)] = target_data
-    save_data(users_data)
+    upsert_user(target_id, is_banned=True)
 
     if update.effective_chat.type in ("group", "supergroup") and target_id != 7994342968:
         await context.bot.ban_chat_member(
@@ -104,8 +102,8 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f.write(f"\n{final_text} Пользователь: {target_id}\n")
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user = users_data.get(str(user_id), {})
+    user_id = str(update.message.from_user.id)
+    user = get_user(user_id)
 
     reply_to = update.message.reply_to_message.from_user.id
 
@@ -144,14 +142,12 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Пожалуйста, не пытайтесь разблокировать себя...")
         return
 
-    target_data = users_data.get(str(target_id), {})
+    target_data = get_user(target_id)
     if not target_data.get("is_banned"):
         await update.message.reply_text("Пользователь не заблокирован!")
         return
 
-    target_data["is_banned"] = False
-    users_data[str(target_id)] = target_data
-    save_data(users_data)
+    upsert_user(target_id, is_banned=False)
 
     if update.effective_chat.type in ("group", "supergroup") and target_id != 7994342968:
         await context.bot.unban_chat_member(
@@ -165,8 +161,8 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f.write(f"\n{final_text} Пользователь: {target_id}\n")
 
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user = users_data.get(str(user_id), {})
+    user_id = str(update.message.from_user.id)
+    user = get_user(user_id)
 
     args = context.args or []
     target_id = None
@@ -204,7 +200,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Пожалуйста, не пытайтесь заткнуть себя...")
         return
 
-    target_data = users_data.get(str(target_id), {})
+    target_data = get_user(target_id)
     if target_data.get("is_muted"):
         await update.message.reply_text("Пользователь уже заткнут!")
         return
@@ -220,9 +216,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             reason = " ".join(args)
 
-    target_data["is_muted"] = True
-    users_data[str(target_id)] = target_data
-    save_data(users_data)
+    upsert_user(target_id, is_muted=True)
 
     if update.effective_chat.type in ("group", "supergroup") and target_id != 7994342968:
         await context.bot.restrict_chat_member(
@@ -257,8 +251,8 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f.write(f"\n{final_text} Пользователь: {target_id}\n")
 
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user = users_data.get(str(user_id), {})
+    user_id = str(update.message.from_user.id)
+    user = get_user(user_id)
 
     args = context.args or []
     target_id = None
@@ -295,14 +289,12 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Пожалуйста, не пытайтесь снять заткнутость себе...")
         return
 
-    target_data = users_data.get(str(target_id), {})
+    target_data = get_user(target_id)
     if not target_data.get("is_muted"):
         await update.message.reply_text("Пользователь не заткнут!")
         return
 
-    target_data["is_muted"] = False
-    users_data[str(target_id)] = target_data
-    save_data(users_data)
+    upsert_user(target_id, is_mutted=False)
 
     if update.effective_chat.type in ("group", "supergroup") and target_id != 7994342968:
         await context.bot.restrict_chat_member(

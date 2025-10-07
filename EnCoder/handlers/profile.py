@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from tools.storage import users_data, save_data, assign_codes
+from tools.storage import get_user, upsert_user, assign_codes
 
 async def profile_settings(update: Update):
     keyboard = [
@@ -12,20 +12,16 @@ async def profile_settings(update: Update):
     await update.callback_query.edit_message_text("Настройки:", reply_markup=markup)
 
 async def receive_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    user_id = str(user.id)
+    user_id = str(update.effective_user.id)
+    user = get_user(user_id)
     name = update.message.text
 
-    if user_id not in users_data:
-        users_data[user_id] = {}
+    if user is None:
+        upsert_user(user_id, name=name, username=update.effective_user.username or "неизвестен")
+    else:
+        upsert_user(user_id, name=name)
 
-    # Сохраняем введённое имя
-    users_data[user_id]["name"] = name
-    # Сохраняем username (если нет — "неизвестен")
-    users_data[user_id]["username"] = user.username or "неизвестен"
-
-    assign_codes(users_data)
-    save_data(users_data)
+    assign_codes()
 
     await update.message.reply_text(f"Имя сохранено: {name}")
 
@@ -35,7 +31,8 @@ async def receive_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_name(update: Update):
     user_id = str(update.effective_user.id)
-    name = users_data.get(user_id, {}).get("name")
+    user = get_user(user_id)
+    name = user.get("name")
     if name:
         await update.effective_message.reply_text(f"Ваше имя: {name}")
     else:

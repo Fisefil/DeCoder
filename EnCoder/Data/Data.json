@@ -1,0 +1,88 @@
+{
+    "987654": {
+        "name": "Maria",
+        "code": "AAAAA",
+        "username": "неизвестен"
+    },
+    "1442153136": {
+        "name": "Ткач",
+        "code": "CODER",
+        "username": "Time_For_Stop",
+        "chat_mode": true,
+        "is_admin": true,
+        "points": 999999
+    },
+    "6583597660": {
+        "name": "First",
+        "code": "AAAAC",
+        "username": "неизвестен"
+    },
+    "5466299650": {
+        "name": "ZERO",
+        "code": "AAAAD",
+        "username": "неизвестен"
+    },
+    "6340366732": {
+        "name": "Legion",
+        "code": "AAAAE",
+        "username": "неизвестен"
+    },
+    "1593038593": {
+        "name": "Джентльмен Куничкин",
+        "code": "AAAAF",
+        "username": "неизвестен"
+    },
+    "7943595335": {
+        "code": "SEA12",
+        "username": "DeadHeartPulse",
+        "name": "Derelict"
+    },
+    "8491879366": {
+        "name": "Король",
+        "code": "AAAAB",
+        "username": "неизвестен"
+    },
+    "5258464730": {
+        "name": "Трансельваген 3500",
+        "code": "AAAAH",
+        "username": "неизвестен"
+    },
+    "7301556079": {
+        "name": "Perchantka",
+        "code": "AGNEC",
+        "username": "неизвестен"
+    },
+    "5381970855": {
+        "name": "spacepirat",
+        "code": "SS12S",
+        "username": "неизвестен"
+    },
+    "6303027737": {
+        "code": "AAAAG",
+        "username": "неизвестен"
+    },
+    "1290336107": {
+        "name": "Your fate",
+        "code": "AAAAI",
+        "username": "неизвестен"
+    },
+    "7953426476": {
+        "name": "Любитель каках и потных машонок",
+        "code": "AAAAJ",
+        "username": "неизвестен"
+    },
+    "1933501906": {
+        "code": "AAAAK",
+        "chat_mode": true,
+        "name": "суперПерчик228",
+        "username": "nelmozfxx",
+        "is_muted": false
+    },
+    "7994342968": {
+        "is_muted": false,
+        "code": "AAAAL"
+    },
+    "7467294722": {
+        "code": "AAAAM"
+    }
+}

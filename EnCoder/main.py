@@ -12,10 +12,13 @@ from handlers.chat import chat_ressender, direct_message_handler
 from handlers.menu import send_main_menu, button_handler, WAITING_FOR_NAME, main_menu_markup
 from handlers.profile import receive_name
 from tools.moderation import ban, unban, mute, unmute
-from tools.storage import save_data, users_data, assign_codes
+from tools.storage import get_user, upsert_user, assign_codes, init_db
 
 # --- Новое состояние для команды /direct ---
 WAITING_DIRECT_MESSAGE = 1001
+
+init_db()
+
 
 async def direct_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
@@ -33,23 +36,25 @@ async def direct_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Обработка специального кода ALL
     if len(codes) == 1 and codes[0].upper() == "ALL":
-        codes = [udata.get("code") for udata in users_data.values() if udata.get("code")]
+        from tools.storage import get_all_codes
+        codes = get_all_codes
 
     context.user_data["direct_codes"] = codes
     await update.message.reply_text(f"Введите сообщение для {', '.join(codes)}:")
     return WAITING_DIRECT_MESSAGE
 
+
 async def global_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = str(update.effective_user.id)
+    user = get_user(str(update.effective_user.id))
     if update.effective_chat.type in ("group", "supergroup") and context.user_data.get("hidden_mode"):
         return
     elif update.effective_chat.type in ("group", "supergroup"):
         await chat_ressender(update, context)
-    elif users_data.get(user_id, {}).get("is_banned"):
+    elif user.get("is_banned"):
         await update.message.reply_text("Вы были заблокированы администратором, "
                                         "пока нет функции аппеляции вам предлагается поплакать.")
         return
-    elif users_data.get(user_id, {}).get("is_muted"):
+    elif user.get("is_mutted"):
         await update.message.reply_text("Вы были заткнуты администратором, "
                                         "пока нет функции аппеляции вам предлагается поплакать.")
         return
@@ -59,10 +64,12 @@ async def global_message_handler(update: Update, context: ContextTypes.DEFAULT_T
         markup = main_menu_markup(context)
         await update.message.reply_text("Чат выключен!", reply_markup=markup)
 
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Обработчик отмены разговора (fallback)
     await update.message.reply_text("Действие отменено.", reply_markup=main_menu_markup(context))
     return ConversationHandler.END
+
 
 # Загрузка токена из переменной окружения
 token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -70,9 +77,10 @@ if not token:
     raise RuntimeError("Ошибка: не задан токен бота в переменной TELEGRAM_BOT_TOKEN")
 app = ApplicationBuilder().token(token).build()
 
+
 async def hidden(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = str(update.effective_user.id)
-    if not users_data.get(user_id, {}).get("name"):
+    user = get_user(str(update.effective_user.id))
+    if not user.get("name"):
         await update.message.reply_text("Простите, но вам нужно сначала ввести ваше фейковое имя в базу данных.")
         return
     if update.effective_chat.type == "private":
@@ -89,15 +97,16 @@ async def hidden(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Запись нового пользователя
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    if user_id not in users_data:
-        users_data[user_id] = {}
-        assign_codes(users_data)
-        save_data(users_data)
+    user = get_user(user_id)
 
-        if not context.user_data.get("keyboard_shown"):
-            context.user_data["keyboard_shown"] = True
-            reply_markup = ReplyKeyboardMarkup([[KeyboardButton("/menu")]], resize_keyboard=True)
-            await update.message.reply_text("Клавиатура активирована 👇", reply_markup=reply_markup)
+    if not user:
+        upsert_user(user_id)
+        assign_codes()
+
+    if not context.user_data.get("keyboard_shown"):
+        context.user_data["keyboard_shown"] = True
+        reply_markup = ReplyKeyboardMarkup([[KeyboardButton("/menu")]], resize_keyboard=True)
+        await update.message.reply_text("Клавиатура активирована 👇", reply_markup=reply_markup)
 
     await send_main_menu(update, context)
 
